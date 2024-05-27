@@ -1,12 +1,14 @@
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 
 import FormField from "../../components/FormField";
 
-import { CustomButton } from "../../components/CustomButton";
-import { Link } from "expo-router";
+import CustomButton from "../../components/CustomButton";
+import { Link, router } from "expo-router";
+
+import { signIn } from "../../lib/appwrite";
 
 const SignIn = () => {
   const [signInForm, setSignInForm] = useState({
@@ -16,12 +18,27 @@ const SignIn = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSignIn = () => {};
+  const handleSignIn = async () => {
+    setIsSubmitting(true);
+
+    try {
+      await signIn(signInForm.email, signInForm.password);
+
+      // set global
+
+      router.replace("/home");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+      console.log(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
-        <View className="w-full h-full  px-4 my-6 min-h-[85vh]">
+        <View className="w-full h-full px-4 my-6 justify-center">
           <Image
             source={images.logo}
             resizeMode="contain"
@@ -36,7 +53,7 @@ const SignIn = () => {
             title="Email"
             value={signInForm.email}
             handleChangeText={(e) => setSignInForm({ ...signInForm, email: e })}
-            otherStyles="mt-7"
+            otherStyles="mt-8"
             keyboardType="email-address"
           />
 
@@ -46,7 +63,15 @@ const SignIn = () => {
             handleChangeText={(e) =>
               setSignInForm({ ...signInForm, password: e })
             }
-            otherStyles="mt-7"
+            otherStyles="mt-4"
+          />
+
+          <CustomButton
+            title="Giriş Yap"
+            handlePress={handleSignIn}
+            containerStyles="mt-16"
+            isLoading={isSubmitting}
+            isDisabled={!signInForm.email || !signInForm.password}
           />
 
           <View className="justify-center pt-5 flex-row">
@@ -57,13 +82,6 @@ const SignIn = () => {
               Hesabınız Yok mu ?
             </Link>
           </View>
-
-          <CustomButton
-            title="Giriş Yap"
-            handlePress={handleSignIn}
-            containerStyles="mt-7"
-            isLoading={isSubmitting}
-          />
         </View>
       </ScrollView>
     </SafeAreaView>
