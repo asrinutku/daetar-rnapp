@@ -22,8 +22,8 @@ const SearchInput = ({ initialQuery }) => {
         onPress={() => {
           if (query === "")
             return Alert.alert(
-              "Missing Query",
-              "Please input something to search results across database"
+              "Sonuç bulunamadı :(",
+              "Başka bir arama yapabilirsiniz"
             );
 
           if (pathname.startsWith("/search")) router.setParams({ query });
