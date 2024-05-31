@@ -1,15 +1,17 @@
 import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Link, router } from "expo-router";
 import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { images } from "../../constants";
-
-import FormField from "../../components/FormField";
 
 import CustomButton from "../../components/CustomButton";
-import { Link, router } from "expo-router";
+import FormField from "../../components/FormField";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { createUser } from "../../lib/appwrite";
+import { images } from "../../constants";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 const SignUp = () => {
+  const { setUser, setIsLoggedIn } = useGlobalContext();
+
   const [signInForm, setSignInForm] = useState({
     username: "",
     email: "",
@@ -28,7 +30,8 @@ const SignUp = () => {
         signInForm.username
       );
 
-      // set global
+      setUser(result);
+      setIsLoggedIn(true);
 
       router.replace("/home");
     } catch (error) {

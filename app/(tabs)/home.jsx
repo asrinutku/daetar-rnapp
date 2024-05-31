@@ -9,9 +9,11 @@ import { images } from "../../constants";
 import { getAllVideos, getLatestVideos } from "../../lib/appwrite";
 import useAppwrite from "../../lib/useAppwrite";
 import VideoCard from "../../components/VideoCard";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
+  const { user } = useGlobalContext();
   const { data: videos, refetch } = useAppwrite(getAllVideos);
   const { data: latestVideos, refetchLatest } = useAppwrite(getLatestVideos);
 
@@ -43,7 +45,7 @@ const Home = () => {
                   Tekrar Hoşgeldiniz,
                 </Text>
                 <Text className="text-2xl font-psemibold text-white">
-                  Asrın
+                  {user?.username}
                 </Text>
               </View>
 
