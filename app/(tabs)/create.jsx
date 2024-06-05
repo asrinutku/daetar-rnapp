@@ -1,4 +1,4 @@
-import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from "expo-image-picker";
 
 import {
   Alert,
@@ -16,8 +16,12 @@ import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { icons } from "../../constants";
+import { router } from "expo-router";
+import { createVideo } from "../../lib/appwrite";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Create = () => {
+  const { user } = useGlobalContext();
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -27,31 +31,55 @@ const Create = () => {
   });
 
   const openPicker = async (type) => {
-    const picked = await DocumentPicker.getDocumentAsync({
-      type:
-        type === "video"
-          ? ["video/mp4", "video/gif"]
-          : ["image/png", "image/jpg"],
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes:
+        type === "image"
+          ? ImagePicker.MediaTypeOptions.Images
+          : ImagePicker.MediaTypeOptions.Videos,
+      aspect: [4, 3],
+      quality: 1,
     });
 
-    if (!picked.canceled) {
+    if (!result.canceled) {
       if (type === "image") {
         setForm({
           ...form,
-          thumbnail: picked.assets[0],
+          thumbnail: result.assets[0],
         });
       }
 
       if (type === "video") {
         setForm({
           ...form,
-          video: picked.assets[0],
+          video: result.assets[0],
         });
       }
     }
   };
 
-  const handleSubmit = () => {};
+  const handleSubmit = async () => {
+    if (!form.prompt || !form.title || !form.thumbnail || !form.video) {
+      return Alert.alert("Tüm alanların doldurulması gerekmektedir");
+    }
+
+    setUploading(true);
+
+    try {
+      await createVideo({
+        ...form,
+        userId: user.$id,
+      });
+
+      Alert.alert("Başarılı", "Video başarıyla yüklendi !");
+      router.push("/home");
+    } catch (error) {
+      Alert.alert(error.mesagge);
+    } finally {
+      setForm({ title: "", video: null, thumbnail: null, prompt: "" });
+
+      setUploading(false);
+    }
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -75,10 +103,8 @@ const Create = () => {
             {form.video ? (
               <Video
                 source={{ uri: form.video.uri }}
-                useNativeControls
                 className="w-full h-64 rounded-2xl"
                 resizeMode={ResizeMode.COVER}
-                isLooping
               />
             ) : (
               <View className="w-full h-40 px-4 bg-black-100 rounded-2xl border border-black-200 flex justify-center items-center">
