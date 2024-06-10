@@ -73,6 +73,7 @@ const Create = () => {
       Alert.alert("Başarılı", "Video başarıyla yüklendi !");
       router.push("/home");
     } catch (error) {
+      console.log(error);
       Alert.alert(error.mesagge);
     } finally {
       setForm({ title: "", video: null, thumbnail: null, prompt: "" });
@@ -151,9 +152,9 @@ const Create = () => {
 
         <FormField
           title="AI Prompt"
-          value={form.title}
+          value={form.prompt}
           placeholder="Videonuzu oluşturduğunuz ai prompt"
-          handleChangeText={(e) => setForm({ ...form, promp: e })}
+          handleChangeText={(e) => setForm({ ...form, prompt: e })}
           otherStyles="mt-7"
         />
 
